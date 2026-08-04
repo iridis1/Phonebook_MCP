@@ -20,6 +20,11 @@ public sealed class PhonebookSearchService
 
     public async Task<PhonebookSearchResult> SearchAsync(string name, CancellationToken cancellationToken = default)
     {
+        if (name.Length < 2)
+        {
+            throw new ArgumentException("Name must be at least 2 characters long.", nameof(name));
+        }
+
         var query = name.Trim();
         var pattern = $"%{query}%";
 

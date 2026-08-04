@@ -1,6 +1,6 @@
 @Phonebook_MCP_HostAddress = http://localhost:5021
 
-GET {{Phonebook_MCP_HostAddress}}/weatherforecast/
+GET {{Phonebook_MCP_HostAddress}}/phonebook/
 Accept: application/json
 
 ###
