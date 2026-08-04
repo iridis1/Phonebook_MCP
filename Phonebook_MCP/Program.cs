@@ -16,8 +16,9 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllers();
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        // OpenAPI - Microsoft.AspNetCore.OpenApi handles Swagger UI automatically
         builder.Services.AddOpenApi();
+        builder.Services.AddEndpointsApiExplorer();
 
         var app = builder.Build();
 
@@ -26,12 +27,21 @@ public class Program
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
+            // MapOpenApi() provid  es OpenAPI specification and automatic Swagger UI
             app.MapOpenApi();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Phonebook API"));
         }
 
         app.UseAuthorization();
 
         app.MapControllers();
+
+        // Initialize the database
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<PhonebookContext>();
+            dbContext.Database.EnsureCreated();
+        }
 
         app.Run();
     }
