@@ -1,6 +1,7 @@
 
 namespace Phonebook_MCP;
 using Microsoft.EntityFrameworkCore;
+using ModelContextProtocol.Server;
 using Phonebook_MCP.Data;
 
 public class Program
@@ -15,6 +16,13 @@ public class Program
         builder.Services.AddDbContext<PhonebookContext>(options => options.UseSqlite(connectionString));
 
         // Add services to the container.
+        builder.Services.AddMcpServer()
+            .WithHttpTransport(options =>
+            {
+                options.Stateless = true;
+            })
+            .WithToolsFromAssembly();
+
         builder.Services.AddControllers();
         // OpenAPI - Microsoft.AspNetCore.OpenApi handles Swagger UI automatically
         builder.Services.AddOpenApi();
@@ -34,6 +42,7 @@ public class Program
 
         app.UseAuthorization();
 
+        app.MapMcp("/phonebook");
         app.MapControllers();
 
         // Initialize the database
