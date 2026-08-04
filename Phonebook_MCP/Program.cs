@@ -1,5 +1,7 @@
 
 namespace Phonebook_MCP;
+using Microsoft.EntityFrameworkCore;
+using Phonebook_MCP.Data;
 
 public class Program
 {
@@ -8,8 +10,11 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
 
-        // Add services to the container.
+        // Configure database
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=Data/phonebook.db";
+        builder.Services.AddDbContext<PhonebookContext>(options => options.UseSqlite(connectionString));
 
+        // Add services to the container.
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
@@ -25,7 +30,6 @@ public class Program
         }
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 
