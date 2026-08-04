@@ -30,19 +30,4 @@ public class PhonebookController : ControllerBase
         return Ok(result.Results);
     }
 
-    // POST /phonebook/search
-    [HttpPost("search")]
-    [ProducesResponseType(typeof(PhonebookSearchResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Search([FromBody] PhonebookSearchRequest? request, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(request?.Name))
-        {
-            return BadRequest(new { error = "body property 'name' is required" });
-        }
-
-        var result = await _phonebookSearch.SearchAsync(request.Name, cancellationToken);
-
-        return Ok(result);
-    }
 }
