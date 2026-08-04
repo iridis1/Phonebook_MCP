@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Phonebook_MCP.Data;
+using Phonebook_MCP.Services;
 
 namespace Phonebook_MCP.Controllers;
 
@@ -8,33 +7,42 @@ namespace Phonebook_MCP.Controllers;
 [Route("phonebook")]
 public class PhonebookController : ControllerBase
 {
-    private readonly PhonebookContext _context;
+    private readonly PhonebookSearchService _phonebookSearch;
 
-    public PhonebookController(PhonebookContext context)
+    public PhonebookController(PhonebookSearchService phonebookSearch)
     {
-        _context = context;
+        _phonebookSearch = phonebookSearch;
     }
 
     // GET /phonebook?name=<NAME>
     [HttpGet]
-    public IActionResult Get([FromQuery] string? name)
+    [ProducesResponseType(typeof(IReadOnlyList<PhonebookContactResult>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Get([FromQuery] string? name, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             return BadRequest(new { error = "query parameter 'name' is required" });
         }
 
-        var pattern = $"%{name}%";
+        var result = await _phonebookSearch.SearchAsync(name, cancellationToken);
 
-        var results = _context.Contacts
-            .Where(c => EF.Functions.Like(c.Name, pattern))
-            .Select(c => new
-            {
-                name = c.Name,
-                number = c.Mobile
-            })
-            .ToList();
+        return Ok(result.Results);
+    }
 
-        return Ok(results);
+    // POST /phonebook/search
+    [HttpPost("search")]
+    [ProducesResponseType(typeof(PhonebookSearchResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Search([FromBody] PhonebookSearchRequest? request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Name))
+        {
+            return BadRequest(new { error = "body property 'name' is required" });
+        }
+
+        var result = await _phonebookSearch.SearchAsync(request.Name, cancellationToken);
+
+        return Ok(result);
     }
 }

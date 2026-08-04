@@ -1,18 +1,17 @@
 using System.ComponentModel;
-using Microsoft.EntityFrameworkCore;
 using ModelContextProtocol.Server;
-using Phonebook_MCP.Data;
+using Phonebook_MCP.Services;
 
 namespace Phonebook_MCP.Tools;
 
 [McpServerToolType]
 public sealed class PhonebookTools
 {
-    private readonly PhonebookContext _context;
+    private readonly PhonebookSearchService _phonebookSearch;
 
-    public PhonebookTools(PhonebookContext context)
+    public PhonebookTools(PhonebookSearchService phonebookSearch)
     {
-        _context = context;
+        _phonebookSearch = phonebookSearch;
     }
 
     [McpServerTool]
@@ -30,23 +29,6 @@ public sealed class PhonebookTools
             };
         }
 
-        var pattern = $"%{name.Trim()}%";
-
-        var results = await _context.Contacts
-            .Where(contact => EF.Functions.Like(contact.Name, pattern))
-            .OrderBy(contact => contact.Name)
-            .Select(contact => new
-            {
-                name = contact.Name,
-                number = contact.Mobile
-            })
-            .ToListAsync(cancellationToken);
-
-        return new
-        {
-            query = name,
-            count = results.Count,
-            results
-        };
+        return await _phonebookSearch.SearchAsync(name, cancellationToken);
     }
 }

@@ -3,6 +3,7 @@ namespace Phonebook_MCP;
 using Microsoft.EntityFrameworkCore;
 using ModelContextProtocol.Server;
 using Phonebook_MCP.Data;
+using Phonebook_MCP.Services;
 
 public class Program
 {
@@ -14,6 +15,7 @@ public class Program
         // Configure database
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=Data/phonebook.db";
         builder.Services.AddDbContext<PhonebookContext>(options => options.UseSqlite(connectionString));
+        builder.Services.AddScoped<PhonebookSearchService>();
 
         // Add services to the container.
         builder.Services.AddMcpServer()
