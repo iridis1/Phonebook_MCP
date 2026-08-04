@@ -1,0 +1,57 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+build/
+artifacts/
+
+# Visual Studio code workspace
+.vscode/
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# ReSharper
+_ReSharper*/
+*._ReSharper.*
+*.DotSettings.user
+
+# Dotnet publish
+publish/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Secrets
+secrets.json
+.env
+
+# User-specific
+*.local
+
+# Ignore package folders
+node_modules/
+
+# Ignore generated EF migrations snapshot files (if needed)
+**/Migrations/*.Designer.cs

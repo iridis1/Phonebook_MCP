@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Phonebook_MCP.AppHost/Phonebook_MCP.AppHost.csproj" />
+  <Project Path="Phonebook_MCP.ServiceDefaults/Phonebook_MCP.ServiceDefaults.csproj" />
+  <Project Path="Phonebook_MCP/Phonebook_MCP.csproj" />
+</Solution>
