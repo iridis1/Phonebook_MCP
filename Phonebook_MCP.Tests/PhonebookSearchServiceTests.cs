@@ -14,6 +14,7 @@ public sealed class PhonebookSearchServiceTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("S")]
+    [InlineData(" S ")]
     [InlineData("%a")]
     [InlineData("a_")]
     public void IsValidSearchName_RejectsInvalidSearchTerms(string? name)
