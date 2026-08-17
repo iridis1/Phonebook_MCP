@@ -1,5 +1,6 @@
 
 namespace Phonebook_MCP;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using ModelContextProtocol.Server;
 using Phonebook_MCP.Data;
@@ -13,7 +14,9 @@ public class Program
         builder.AddServiceDefaults();
 
         // Configure database
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=Data/phonebook.db";
+        var connectionString = ResolveSqliteConnectionString(
+            builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=../Data/Phonebook.db",
+            builder.Environment.ContentRootPath);
         builder.Services.AddDbContext<PhonebookContext>(options => options.UseSqlite(connectionString));
         builder.Services.AddScoped<PhonebookSearchService>();
 
@@ -55,5 +58,28 @@ public class Program
         }
 
         app.Run();
+    }
+
+    private static string ResolveSqliteConnectionString(string connectionString, string contentRootPath)
+    {
+        var connectionStringBuilder = new SqliteConnectionStringBuilder(connectionString);
+        var dataSource = connectionStringBuilder.DataSource;
+
+        if (!string.IsNullOrWhiteSpace(dataSource)
+            && dataSource != ":memory:"
+            && !Path.IsPathRooted(dataSource))
+        {
+            var databasePath = Path.GetFullPath(Path.Combine(contentRootPath, dataSource));
+            var databaseDirectory = Path.GetDirectoryName(databasePath);
+
+            if (!string.IsNullOrEmpty(databaseDirectory))
+            {
+                Directory.CreateDirectory(databaseDirectory);
+            }
+
+            connectionStringBuilder.DataSource = databasePath;
+        }
+
+        return connectionStringBuilder.ConnectionString;
     }
 }
