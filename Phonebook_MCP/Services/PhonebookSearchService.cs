@@ -11,6 +11,8 @@ public sealed record PhonebookSearchResult(string Query, int Count, IReadOnlyLis
 
 public sealed class PhonebookSearchService
 {
+    public const int MinimumSearchNameLength = 2;
+
     private readonly PhonebookContext _context;
 
     public PhonebookSearchService(PhonebookContext context)
@@ -20,12 +22,13 @@ public sealed class PhonebookSearchService
 
     public async Task<PhonebookSearchResult> SearchAsync(string name, CancellationToken cancellationToken = default)
     {
-        if (name.Length < 2)
+        var query = name.Trim();
+
+        if (!IsValidSearchName(query))
         {
-            throw new ArgumentException("Name must be at least 2 characters long.", nameof(name));
+            throw new ArgumentException($"Name must be at least {MinimumSearchNameLength} characters long.", nameof(name));
         }
 
-        var query = name.Trim();
         var pattern = $"%{query}%";
 
         var results = await _context.Contacts
@@ -35,5 +38,10 @@ public sealed class PhonebookSearchService
             .ToListAsync(cancellationToken);
 
         return new PhonebookSearchResult(query, results.Count, results);
+    }
+
+    public static bool IsValidSearchName(string? name)
+    {
+        return !string.IsNullOrWhiteSpace(name) && name.Trim().Length >= MinimumSearchNameLength;
     }
 }

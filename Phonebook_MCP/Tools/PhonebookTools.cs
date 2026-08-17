@@ -29,6 +29,14 @@ public sealed class PhonebookTools
             };
         }
 
+        if (!PhonebookSearchService.IsValidSearchName(name))
+        {
+            return new
+            {
+                error = $"The 'name' argument must be at least {PhonebookSearchService.MinimumSearchNameLength} characters long."
+            };
+        }
+
         return await _phonebookSearch.SearchAsync(name, cancellationToken);
     }
 }

@@ -25,6 +25,11 @@ public class PhonebookController : ControllerBase
             return BadRequest(new { error = "query parameter 'name' is required" });
         }
 
+        if (!PhonebookSearchService.IsValidSearchName(name))
+        {
+            return BadRequest(new { error = $"query parameter 'name' must be at least {PhonebookSearchService.MinimumSearchNameLength} characters long" });
+        }
+
         var result = await _phonebookSearch.SearchAsync(name, cancellationToken);
 
         return Ok(result.Results);
