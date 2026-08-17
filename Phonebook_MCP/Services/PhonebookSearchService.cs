@@ -42,6 +42,6 @@ public sealed class PhonebookSearchService
 
     public static bool IsValidSearchName(string? name)
     {
-        return !string.IsNullOrWhiteSpace(name) && name.Trim().Length >= MinimumSearchNameLength && !name.Contains('%');
+        return !string.IsNullOrWhiteSpace(name) && name.Trim().Length >= MinimumSearchNameLength && !name.Contains('%') && !name.Contains('_'); ;
     }
 }
