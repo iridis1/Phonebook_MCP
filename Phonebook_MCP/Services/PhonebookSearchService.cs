@@ -9,7 +9,7 @@ public sealed record PhonebookContactResult(string Name, string Number);
 
 public sealed record PhonebookSearchResult(string Query, int Count, IReadOnlyList<PhonebookContactResult> Results);
 
-public sealed class PhonebookSearchService
+public sealed class PhonebookSearchService : IPhonebookSearchService
 {
     public const int MinimumSearchNameLength = 2;
 

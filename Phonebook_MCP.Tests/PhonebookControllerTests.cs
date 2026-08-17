@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Phonebook_MCP.Controllers;
-using Phonebook_MCP.Data;
 using Phonebook_MCP.Services;
 using Xunit;
 
@@ -13,23 +10,25 @@ public sealed class PhonebookControllerTests
     [Fact]
     public async Task Get_ReturnsBadRequestWhenNameIsMissing()
     {
-        await using var database = await CreateDatabaseAsync();
-        var controller = new PhonebookController(new PhonebookSearchService(database.Context));
+        var searchService = new FakePhonebookSearchService();
+        var controller = new PhonebookController(searchService);
 
         var result = await controller.Get(null, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal(0, searchService.SearchCallCount);
     }
 
     [Fact]
     public async Task Get_ReturnsBadRequestWhenNameIsTooShort()
     {
-        await using var database = await CreateDatabaseAsync();
-        var controller = new PhonebookController(new PhonebookSearchService(database.Context));
+        var searchService = new FakePhonebookSearchService();
+        var controller = new PhonebookController(searchService);
 
         var result = await controller.Get("S", CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal(0, searchService.SearchCallCount);
     }
 
     [Theory]
@@ -39,21 +38,24 @@ public sealed class PhonebookControllerTests
     [InlineData("a_z")]
     public async Task Get_ReturnsBadRequestWhenInvalidCharacter(string invalidChars)
     {
-        await using var database = await CreateDatabaseAsync();
-        var controller = new PhonebookController(new PhonebookSearchService(database.Context));
+        var searchService = new FakePhonebookSearchService();
+        var controller = new PhonebookController(searchService);
 
         var result = await controller.Get(invalidChars, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal(0, searchService.SearchCallCount);
     }
 
     [Fact]
     public async Task Get_ReturnsMatchingContacts()
     {
-        await using var database = await CreateDatabaseAsync();
-        database.Context.Contacts.Add(new() { Name = "Sabine", Mobile = "06-45678944" });
-        await database.Context.SaveChangesAsync();
-        var controller = new PhonebookController(new PhonebookSearchService(database.Context));
+        var expectedResults = new[]
+        {
+            new PhonebookContactResult("Sabine", "06-45678944")
+        };
+        var searchService = new FakePhonebookSearchService(new PhonebookSearchResult("Sabine", 1, expectedResults));
+        var controller = new PhonebookController(searchService);
 
         var result = await controller.Get("Sabine", CancellationToken.None);
 
@@ -62,39 +64,28 @@ public sealed class PhonebookControllerTests
         var contact = Assert.Single(contacts);
         Assert.Equal("Sabine", contact.Name);
         Assert.Equal("06-45678944", contact.Number);
+        Assert.Equal("Sabine", searchService.LastSearchName);
+        Assert.Equal(1, searchService.SearchCallCount);
     }
 
-    private static async Task<TestDatabase> CreateDatabaseAsync()
+    private sealed class FakePhonebookSearchService : IPhonebookSearchService
     {
-        var connection = new SqliteConnection("Data Source=:memory:");
-        await connection.OpenAsync();
+        private readonly PhonebookSearchResult _result;
 
-        var options = new DbContextOptionsBuilder<PhonebookContext>()
-            .UseSqlite(connection)
-            .Options;
-
-        var context = new PhonebookContext(options);
-        await context.Database.EnsureCreatedAsync();
-
-        return new TestDatabase(connection, context);
-    }
-
-    private sealed class TestDatabase : IAsyncDisposable
-    {
-        private readonly SqliteConnection _connection;
-
-        public TestDatabase(SqliteConnection connection, PhonebookContext context)
+        public FakePhonebookSearchService(PhonebookSearchResult? result = null)
         {
-            _connection = connection;
-            Context = context;
+            _result = result ?? new PhonebookSearchResult("", 0, []);
         }
 
-        public PhonebookContext Context { get; }
+        public string? LastSearchName { get; private set; }
 
-        public async ValueTask DisposeAsync()
+        public int SearchCallCount { get; private set; }
+
+        public Task<PhonebookSearchResult> SearchAsync(string name, CancellationToken cancellationToken = default)
         {
-            await Context.DisposeAsync();
-            await _connection.DisposeAsync();
+            LastSearchName = name;
+            SearchCallCount++;
+            return Task.FromResult(_result);
         }
     }
 }

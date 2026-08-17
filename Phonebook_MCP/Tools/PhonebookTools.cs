@@ -7,9 +7,9 @@ namespace Phonebook_MCP.Tools;
 [McpServerToolType]
 public sealed class PhonebookTools
 {
-    private readonly PhonebookSearchService _phonebookSearch;
+    private readonly IPhonebookSearchService _phonebookSearch;
 
-    public PhonebookTools(PhonebookSearchService phonebookSearch)
+    public PhonebookTools(IPhonebookSearchService phonebookSearch)
     {
         _phonebookSearch = phonebookSearch;
     }
