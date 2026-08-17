@@ -32,11 +32,26 @@ public sealed class PhonebookControllerTests
         Assert.IsType<BadRequestObjectResult>(result);
     }
 
+    [Theory]
+    [InlineData("%")]
+    [InlineData("_")]
+    [InlineData("a%z")]
+    [InlineData("a_z")]
+    public async Task Get_ReturnsBadRequestWhenInvalidCharacter(string invalidChars)
+    {
+        await using var database = await CreateDatabaseAsync();
+        var controller = new PhonebookController(new PhonebookSearchService(database.Context));
+
+        var result = await controller.Get(invalidChars, CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
     [Fact]
     public async Task Get_ReturnsMatchingContacts()
     {
         await using var database = await CreateDatabaseAsync();
-        database.Context.Contacts.Add(new() { Name = "Sabine", Mobile = "06-45678922" });
+        database.Context.Contacts.Add(new() { Name = "Sabine", Mobile = "06-45678944" });
         await database.Context.SaveChangesAsync();
         var controller = new PhonebookController(new PhonebookSearchService(database.Context));
 
@@ -46,7 +61,7 @@ public sealed class PhonebookControllerTests
         var contacts = Assert.IsAssignableFrom<IReadOnlyList<PhonebookContactResult>>(okResult.Value);
         var contact = Assert.Single(contacts);
         Assert.Equal("Sabine", contact.Name);
-        Assert.Equal("06-45678922", contact.Number);
+        Assert.Equal("06-45678944", contact.Number);
     }
 
     private static async Task<TestDatabase> CreateDatabaseAsync()
