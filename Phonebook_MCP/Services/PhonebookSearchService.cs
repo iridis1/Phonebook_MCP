@@ -26,7 +26,7 @@ public sealed class PhonebookSearchService
 
         if (!IsValidSearchName(query))
         {
-            throw new ArgumentException($"Name must be at least {MinimumSearchNameLength} characters long.", nameof(name));
+            throw new ArgumentException($"Name must be at least {MinimumSearchNameLength} characters long and not contain disallowed characters.", nameof(name));
         }
 
         var pattern = $"%{query}%";
@@ -42,6 +42,6 @@ public sealed class PhonebookSearchService
 
     public static bool IsValidSearchName(string? name)
     {
-        return !string.IsNullOrWhiteSpace(name) && name.Trim().Length >= MinimumSearchNameLength;
+        return !string.IsNullOrWhiteSpace(name) && name.Trim().Length >= MinimumSearchNameLength && !name.Contains('%');
     }
 }

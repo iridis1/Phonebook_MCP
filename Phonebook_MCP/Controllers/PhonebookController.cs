@@ -27,7 +27,7 @@ public class PhonebookController : ControllerBase
 
         if (!PhonebookSearchService.IsValidSearchName(name))
         {
-            return BadRequest(new { error = $"query parameter 'name' must be at least {PhonebookSearchService.MinimumSearchNameLength} characters long" });
+            return BadRequest(new { error = $"query parameter 'name' must be at least {PhonebookSearchService.MinimumSearchNameLength} characters long and not contain disallowed characters." });
         }
 
         var result = await _phonebookSearch.SearchAsync(name, cancellationToken);

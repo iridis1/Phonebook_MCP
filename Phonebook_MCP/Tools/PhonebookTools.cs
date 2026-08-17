@@ -33,7 +33,7 @@ public sealed class PhonebookTools
         {
             return new
             {
-                error = $"The 'name' argument must be at least {PhonebookSearchService.MinimumSearchNameLength} characters long."
+                error = $"The 'name' argument must be at least {PhonebookSearchService.MinimumSearchNameLength} characters long and not contain disallowed characters."
             };
         }
 
