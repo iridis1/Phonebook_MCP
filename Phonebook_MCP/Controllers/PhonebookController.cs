@@ -7,9 +7,9 @@ namespace Phonebook_MCP.Controllers;
 [Route("phonebook")]
 public class PhonebookController : ControllerBase
 {
-    private readonly PhonebookSearchService _phonebookSearch;
+    private readonly IPhonebookSearchService _phonebookSearch;
 
-    public PhonebookController(PhonebookSearchService phonebookSearch)
+    public PhonebookController(IPhonebookSearchService phonebookSearch)
     {
         _phonebookSearch = phonebookSearch;
     }

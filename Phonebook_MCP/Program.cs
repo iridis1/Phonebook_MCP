@@ -18,7 +18,7 @@ public class Program
             builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=../Data/Phonebook.db",
             builder.Environment.ContentRootPath);
         builder.Services.AddDbContext<PhonebookContext>(options => options.UseSqlite(connectionString));
-        builder.Services.AddScoped<PhonebookSearchService>();
+        builder.Services.AddScoped<IPhonebookSearchService, PhonebookSearchService>();
 
         // Add services to the container.
         builder.Services.AddMcpServer()
