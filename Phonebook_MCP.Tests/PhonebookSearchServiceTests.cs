@@ -36,9 +36,9 @@ public sealed class PhonebookSearchServiceTests
         await using var database = await CreateDatabaseAsync();
         var service = new PhonebookSearchService(database.Context);
 
-        var result = await service.SearchAsync("Sa");
+        var result = await service.SearchAsync("sa");
 
-        Assert.Equal("Sa", result.Query);
+        Assert.Equal("sa", result.Query);
         Assert.Equal(2, result.Count);
         Assert.Equal(
             ["Sabine", "Sarah"],
@@ -82,10 +82,10 @@ public sealed class PhonebookSearchServiceTests
         await context.Database.EnsureCreatedAsync();
 
         context.Contacts.AddRange(
-            new Contact { Name = "Sabine", Mobile = "06-45678922" },
             new Contact { Name = "Sarah", Mobile = "06-33333333" },
             new Contact { Name = "John", Mobile = "06-65454121" },
             new Contact { Name = "Adam", Mobile = "06-11111111" },
+            new Contact { Name = "Sabine", Mobile = "06-45678922" },
             new Contact { Name = "Zara", Mobile = "06-22222222" });
         await context.SaveChangesAsync();
 
